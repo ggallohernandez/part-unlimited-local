@@ -2,7 +2,7 @@
 
 Welcome! This is a demo project designed for QVentus. This app is built using Docker Compose, and runs on Django, Postgres, and Nginx. 
 
-To get started with this demo, follow the installation instructions in the next section. I hope you find it interesting!
+To get started with this demo, follow the installation instructions in the next section. I hope you find it of interest!
 
 
 ## Installation

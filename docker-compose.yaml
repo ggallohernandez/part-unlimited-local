@@ -1,0 +1,80 @@
+# docker compose for parts-api (python), nginx, and a postgres database
+version: '3.7'
+services:
+  parts-db:
+    image: postgres:12.2
+    volumes:
+      - db_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: parts
+      POSTGRES_PASSWORD: parts
+      POSTGRES_DB: parts
+    ports:
+      - "5432:5432"
+    networks:
+      - parts-network
+
+  pgadmin4:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dev@test.com
+      PGADMIN_DEFAULT_PASSWORD: 1234
+    ports:
+      - 8088:80
+    volumes:
+      - "pgadmin:/var/lib/pgadmin"
+    networks:
+      - parts-network
+
+  parts-api:
+    hostname: parts-api.parts-unlimited.localhost
+    build: 
+      context: ${PARTS_UNLIMITED_DIR-..}/parts-api
+    #entrypoint: ["gunicorn", "wsgi:application", "--bind", "0.0.0.0:8000", "--reload"]
+    # uncomment to enable debugging
+    entrypoint: sh -c "pip install debugpy && python -m debugpy --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8000 --nothreading"
+    environment:
+      - APP_ENV=${API_ENV-development}
+      - DATABASE_URL=${DATABASE_URL-postgres://parts:parts@parts-db:5432/parts}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS-127.0.0.1,localhost,parts-api.parts-unlimited.localhost}
+    volumes:
+      - ${PARTS_UNLIMITED_DIR-..}/parts-api:/app
+      - static_data:/app/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - parts-db
+    networks:
+      - parts-network
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d/
+      - static_data:/var/www/html
+    ports:
+      - "80:80"
+    depends_on:
+      - parts-api
+    networks:
+      - parts-network
+  
+  swagger:
+    image: swaggerapi/swagger-ui
+    ports:
+      - "8080:8080"
+    environment:
+      URL: http://localhost/api/openapi.json
+    networks:
+      - parts-network
+
+# Bridged network
+networks:
+  parts-network:
+    driver: bridge
+
+volumes:
+  db_data:
+  pgadmin:
+  static_data:

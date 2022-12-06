@@ -31,9 +31,9 @@ services:
     hostname: parts-api.parts-unlimited.localhost
     build: 
       context: ${PARTS_UNLIMITED_DIR-..}/parts-api
-    #entrypoint: ["gunicorn", "wsgi:application", "--bind", "0.0.0.0:8000", "--reload"]
+    entrypoint: ["gunicorn", "wsgi:application", "--bind", "0.0.0.0:8000", "--reload"]
     # uncomment to enable debugging
-    entrypoint: sh -c "pip install debugpy && python -m debugpy --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8000 --nothreading"
+    #entrypoint: sh -c "pip install debugpy && python -m debugpy --listen 0.0.0.0:5678 manage.py runserver 0.0.0.0:8000 --nothreading"
     environment:
       - APP_ENV=${API_ENV-development}
       - DATABASE_URL=${DATABASE_URL-postgres://parts:parts@parts-db:5432/parts}

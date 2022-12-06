@@ -30,7 +30,7 @@ migrate:
 
 # run collectstatic with docker-compose
 collectstatic:
-	$(DOCKER_COMPOSE) exec parts-api python manage.py collectstatic
+	$(DOCKER_COMPOSE) exec parts-api python manage.py collectstatic --noinput
 
 # run loaddata with docker-compose
 loaddata:
